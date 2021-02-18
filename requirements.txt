@@ -1,0 +1,27 @@
+numpy==1.16.4           # 2019.05.29 https://pypi.org/project/numpy/#history
+pandas==1.0.5           # 2020.06.18 https://pypi.org/project/pandas/#history
+matplotlib==3.2.2       # 2020.06.18 https://pypi.org/project/matplotlib/#history
+# Python Imaging Library
+Pillow==7.2.0           # 2020.06.30 https://pypi.org/project/Pillow/#history
+# Read and write HDF5 files
+h5py==2.10.0            # 2019.09.07 https://pypi.org/project/h5py/#history
+# Science
+scipy==1.4.1            # 2019.12.19 https://pypi.org/project/scipy/#history
+# Dump
+joblib==0.16.0          # 2020.07.02 https://pypi.org/project/joblib/#history
+scikit-learn==0.21.3    # 2019.07.30 https://pypi.org/project/scikit-learn/#history
+
+
+# Tensorflow: https://tensorflow.google.cn/install/source_windows#gpu
+tensorflow==2.2.2           # 2021.01.07 https://pypi.org/project/tensorflow/#history
+tensorflow-gpu==2.2.2       # CUDA 10.1
+tensorboard==2.2.2
+keras==2.4.3                # 2020.06.25 https://pypi.org/project/keras/#history
+
+
+# PyTorch: https://pytorch.org/get-started/previous-versions/
+torch==1.6.0+cu101
+torchvision==0.7.0+cu101
+# torch==1.6.0+cpu
+# torchvision==0.7.0+cpu
+torchaudio==0.6.0
