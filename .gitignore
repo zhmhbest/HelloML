@@ -1,7 +1,9 @@
 /packages/
+/.vscode/
+/.idea/*
+!/.idea/*.iml
+!/.idea/modules.xml
+/venv/
+
 __pycache__/
 .trash/
-.vscode/
-.idea/
-*.iml
-venv/
