@@ -39,31 +39,29 @@ model = Sequential(
     ReLU(),
     Linear(84, 10)
 )
-
-for it in model.parameters():
-    # 每层可训练参数
-    print(it.size())
+print('\n'.join([str(it.size()) for it in model.parameters()]))
 
 
 # ■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■
 
 
-x_data = torch.randn(1, DATA_CHANNEL, DATA_SIZE_W, DATA_SIZE_H)
-y_data = torch.randn(10).view(1, -1)
-y_pred = model(x_data)
+if __name__ == '__main__':
+    x_data = torch.randn(1, DATA_CHANNEL, DATA_SIZE_W, DATA_SIZE_H)
+    y_data = torch.randn(10).view(1, -1)
+    y_pred = model(x_data)
 
-# 损失函数
-loss_fn = MSELoss()
-loss_val = loss_fn(y_data, y_pred)
-print("LossValue =", loss_val)
+    # 损失函数
+    loss_fn = MSELoss()
+    loss_val = loss_fn(y_data, y_pred)
+    print("LossValue =", loss_val)
 
-loss_val.backward()
-for it in model.parameters():
-    print(it.grad[0])
-    break
+    loss_val.backward()
+    for it in model.parameters():
+        print(it.grad[0])
+        break
 
-# 梯度置为0
-model.zero_grad()
-for it in model.parameters():
-    print(it.grad[0])
-    break
+    # 梯度置为0
+    model.zero_grad()
+    for it in model.parameters():
+        print(it.grad[0])
+        break
