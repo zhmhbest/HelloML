@@ -47,7 +47,7 @@ print('\n'.join([str(it.size()) for it in model.parameters()]))
 
 if __name__ == '__main__':
     x_data = torch.randn(1, DATA_CHANNEL, DATA_SIZE_W, DATA_SIZE_H)
-    y_data = torch.randn(10).view(1, -1)
+    y_data = torch.randn(1, 10)
     y_pred = model(x_data)
 
     # 损失函数
