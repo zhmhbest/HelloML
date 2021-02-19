@@ -1,5 +1,6 @@
 /packages/
 /.vscode/
+.vscode/
 /.idea/*
 !/.idea/*.iml
 !/.idea/modules.xml
