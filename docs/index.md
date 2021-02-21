@@ -3,4 +3,6 @@
 
 # [机器学习](https://github.com/zhmhbest/HelloML)
 
+## [Scikit-learn](./sklearn/index.html)
+
 ## [Tensorflow 1.X](./tf1/index.html)
