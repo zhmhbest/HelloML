@@ -9,6 +9,8 @@ h5py==2.10.0            # 2019.09.07 https://pypi.org/project/h5py/#history
 scipy==1.4.1            # 2019.12.19 https://pypi.org/project/scipy/#history
 # Dump
 joblib==0.16.0          # 2020.07.02 https://pypi.org/project/joblib/#history
+
+jieba
 scikit-learn==0.21.3    # 2019.07.30 https://pypi.org/project/scikit-learn/#history
 
 
