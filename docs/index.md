@@ -8,3 +8,5 @@
 ## [Tensorflow 1.X](./tf1/index.html)
 
 ## [Keras](./keras/index.html)
+
+## [Pytorch](./torch/index.html)
