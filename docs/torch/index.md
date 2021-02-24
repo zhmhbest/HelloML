@@ -87,3 +87,62 @@ $；$
     \dfrac{∂o}{∂x_i} \bold{|}_{x_i=1}
     = 3.0
 $
+
+## 模型保存
+
+>在 PyTorch 中一般使用`.pt`或者是`.pth`作为模型文件的扩展名。
+
+```python
+print("Model's state:")
+for item in model.state_dict():
+    print(f"    {item}: {model.state_dict()[item].size()}")
+
+print("Optimizer's state:")
+for item in optimizer.state_dict():
+    print(f"    {item}: {optimizer.state_dict()[item]}")
+```
+
+### 仅用于推断
+
+```python
+# 保存
+torch.save(model.state_dict(), PATH)
+
+# 加载
+model = ModelClass()
+model.load_state_dict(torch.load(PATH))
+model.eval()
+```
+
+### 完整模型
+
+```python
+# 保存
+torch.save(model, PATH)
+
+# 加载
+# 模型类必须在此之前被定义
+model = torch.load(PATH)
+model.eval()
+```
+
+### 继续训练
+
+```python
+# 保存
+torch.save({
+    'model': model.state_dict(),
+    'optimizer': optimizer.state_dict(),
+    ...
+}, PATH)
+
+# 加载
+model = ModelClass()
+optimizer = OptimizerClass(...)
+
+checkpoint = torch.load(PATH)
+model.load_state_dict(checkpoint['model'])
+optimizer.load_state_dict(checkpoint['optimizer'])
+# ...
+# model.eval() | model.train()
+```

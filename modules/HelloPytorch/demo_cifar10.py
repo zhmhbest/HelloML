@@ -1,56 +1,44 @@
-import numpy as np
-from matplotlib import pyplot as plt
+import os
+import time
 import torch
-import torch.nn.functional as F
 from torch import optim
 from torch.nn import Module
 from torch.nn import ReLU, Flatten
 from torch.nn import Conv2d, MaxPool2d, Linear
 from torch.nn import CrossEntropyLoss
-from torch.utils.data.dataloader import Dataset, DataLoader
-from torch.utils.data.dataset import T_co
-from torchvision.datasets import CIFAR10
+
+from support.dataset.cifar10 import load_data, show_images
+from support.dataset import DataHolder
 from torchvision.transforms import transforms
+from torch.utils.data.dataloader import DataLoader
+
+from support.cnn import get_cnn_filtered_size, get_flatten_size
+print(f"Using {torch.cuda.get_device_name(torch.cuda.current_device())}.")
+
+# 模型存储位置
+if not os.path.exists("dump"):
+    os.mkdir("dump")
+dump_model = f"dump/{os.path.splitext(os.path.basename(__file__))[0]}.pt"
+
 
 """
     ■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■
     加载数据
     ■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■
 """
-
-
-def load_data():
-    dataset_train = CIFAR10(root='./support', train=True, download=True)
-    dataset_test = CIFAR10(root='./support', train=False, download=True)
-
-    return (
-        dataset_train.classes,
-        dataset_train.data,
-        dataset_train.targets,
-        dataset_test.data,
-        dataset_test.targets
-    )
-
-
-classes, x_train, y_train, x_test, y_test = load_data()
-size_train = len(x_train)
-size_test = len(x_test)
+print("\n--- Data Loading")
+x_raw_train, y_raw_train, x_raw_test, y_raw_test, y_classes = load_data()
+size_train = len(x_raw_train)
+size_test = len(x_raw_test)
 
 # 图片（高、宽、通道）
-print(f"(H, W, C) = {x_train[0].shape}")
+input_shape = x_raw_train[0].shape
+print(f"(H, W, C) = {input_shape}")
 print(f"Size(train) = {size_train}")
 print(f"Size(test) = {size_test}")
 
-
-def show_images(num):
-    global x_train, y_train
-    print([classes[_i_] for _i_ in y_train[0:10]])
-    plt.imshow(np.hstack(x_train[0:10]))
-    plt.show()
-
-
 # 显示头10张图片
-# show_images(10)
+# show_images(x_raw_train[0:10], y_raw_train[0:10], y_classes)
 
 
 """
@@ -58,33 +46,14 @@ def show_images(num):
     数据预处理
     ■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■
 """
-
-
-class DataHolder(Dataset):
-    def __init__(self, x: np.ndarray, y: np.ndarray, x_transform=None, y_transform=None) -> None:
-        super().__init__()
-        self.x = x
-        self.y = y
-        self.x_transform = x_transform
-        self.y_transform = y_transform
-
-    def __len__(self) -> int:
-        return len(self.x)
-
-    def __getitem__(self, index) -> T_co:
-        return (
-            self.x[index] if self.x_transform is None else self.x_transform(self.x[index]),
-            self.y[index] if self.y_transform is None else self.y_transform(self.y[index])
-        )
-
-
 transform = transforms.Compose([
     transforms.ToTensor(),
-    transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))
+    transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5)),
 ])
-loader_train = DataLoader(DataHolder(x_train, y_train, transform), batch_size=32, shuffle=True, num_workers=0)
-loader_test = DataLoader(DataHolder(x_test, y_test, transform), batch_size=32, shuffle=False, num_workers=0)
-# for i, (x_batch, y_batch) in enumerate(loader_train, 0):
+xy_train_loader = DataLoader(DataHolder(x_raw_train, y_raw_train, transform), batch_size=128, shuffle=True, num_workers=0)
+xy_test_loader = DataLoader(DataHolder(x_raw_test, y_raw_test, transform), batch_size=128, shuffle=False, num_workers=0)
+# for i, (x_batch, y_batch) in enumerate(xy_train_loader, 0):
+print("--- Data Loaded\n")
 
 
 """
@@ -92,6 +61,12 @@ loader_test = DataLoader(DataHolder(x_test, y_test, transform), batch_size=32, s
     创建模型
     ■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■
 """
+print("\n--- Model Building")
+filtered_size = get_cnn_filtered_size(input_shape[0:2], 5)
+filtered_size = get_cnn_filtered_size(filtered_size, 2, 2)
+filtered_size = get_cnn_filtered_size(filtered_size, 5)
+filtered_size = get_cnn_filtered_size(filtered_size, 2, 2)
+flattened_size = get_flatten_size(filtered_size, 16)
 
 
 class MyModel(Module):
@@ -102,7 +77,7 @@ class MyModel(Module):
         self.pool1 = MaxPool2d(2, 2)
         self.conv2 = Conv2d(6, 16, 5)
         self.flatten1 = Flatten()
-        self.fc1 = Linear(16 * 5 * 5, 120)
+        self.fc1 = Linear(flattened_size, 120)
         self.fc2 = Linear(120, 84)
         self.fc3 = Linear(84, 10)
 
@@ -120,6 +95,22 @@ model = MyModel()
 optimizer = optim.Adam(model.parameters(), lr=0.001)
 criterion = CrossEntropyLoss()
 
+# 模块可训练参数
+for item in model.state_dict():
+    print(item, model.state_dict()[item].size())
+print("--- Model Builded\n")
+
+# 加载历史模型数据
+if os.path.exists(dump_model):
+    print("\n--- Model Loading")
+    checkpoint = torch.load(dump_model)
+    model.load_state_dict(checkpoint['model'])
+    optimizer.load_state_dict(checkpoint['optimizer'])
+    accuracy_last_train, accuracy_last_test = checkpoint['accuracy']
+    print(f"Accuracy of last train: {accuracy_last_train}")
+    print(f"Accuracy of last test : {accuracy_last_test}")
+    print("--- Model Loaded\n")
+
 
 """
     ■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■
@@ -128,10 +119,10 @@ criterion = CrossEntropyLoss()
 """
 
 
-def train(epoch, print_each=200):
+def train(epoch, print_each=100):
     for ep in range(1, 1 + epoch):
         loss_running = 0.0
-        for i, (x_batch, y_batch) in enumerate(loader_train, 0):
+        for i, (x_batch, y_batch) in enumerate(xy_train_loader, 0):
             # 前向传播
             optimizer.zero_grad()
             y_predict = model(x_batch)
@@ -147,10 +138,11 @@ def train(epoch, print_each=200):
             if 1 == (print_each - (i % print_each)):
                 print(f"epoch:{ep}, index:{i + 1}, loss:{loss_running / print_each}")
                 loss_running = 0.0
-    print('Finished Training')
 
 
-train(10)
+print("\n--- Training")
+train(2)
+print("--- Trained\n")
 
 
 """
@@ -175,6 +167,23 @@ def get_correction(loader: DataLoader):
         return correction / total
 
 
-print(f"Accuracy of train: {get_correction(loader_train)}")
-print(f"Accuracy of test : {get_correction(loader_test)}")
+print("\n--- Testing")
+accuracy_train = get_correction(xy_train_loader)
+accuracy_test = get_correction(xy_test_loader)
+print(f"Accuracy of train: {accuracy_train}")
+print(f"Accuracy of test : {accuracy_test}")
+print("--- Tested\n")
 
+
+"""
+    ■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■
+    模型持久化
+    ■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■
+"""
+print("\n--- Saving")
+torch.save({
+    "model": model.state_dict(),
+    "optimizer": optimizer.state_dict(),
+    "accuracy": [accuracy_train, accuracy_test]
+}, dump_model)
+print("--- Saved\n")

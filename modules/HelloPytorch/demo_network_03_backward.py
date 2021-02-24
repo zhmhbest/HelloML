@@ -2,7 +2,7 @@ import torch
 from torch.nn import MSELoss
 from torch.nn import Sequential
 from torch.nn import ReLU
-from support import get_cnn_filtered_size, get_flatten_size
+from support.cnn import get_cnn_filtered_size, get_flatten_size
 
 # Conv2d(in_channels: int, out_channels: int, kernel_size, stride=1, padding=0)
 from torch.nn import Conv2d
@@ -26,14 +26,14 @@ convoluted_size = get_cnn_filtered_size((DATA_SIZE_W, DATA_SIZE_H), 3, 1, 0)
 # MaxPool2d
 convoluted_size = get_cnn_filtered_size(convoluted_size, 2, 2, 0)
 # Flatten
-flatten_size = get_flatten_size(convoluted_size) * 6
+flattened_size = get_flatten_size(convoluted_size, 6)
 
 model = Sequential(
     Conv2d(1, 6, 3),
     ReLU(),
     MaxPool2d(2),
     Flatten(),
-    Linear(flatten_size, 120),
+    Linear(flattened_size, 120),
     ReLU(),
     Linear(120, 84),
     ReLU(),
