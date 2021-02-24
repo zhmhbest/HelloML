@@ -32,9 +32,21 @@ idf: 逆文档频率（inverse document frequency）
 
 离散特征的取值之间没有大小的意义，OneHot编码使用$n$位状态寄存器来对$n$个状态进行编码，每个状态都由他独立的寄存器位，并且在任意时候，其中只有一位有效。
 
+```python
+import numpy as np
+from sklearn.preprocessing import OneHotEncoder
+
+x = np.array([1, 2, 3]).reshape(-1, 1)
+y = OneHotEncoder(categories='auto').fit_transform(x).toarray()
+print(y)
+# [[1. 0. 0.]
+#  [0. 1. 0.]
+#  [0. 0. 1.]]
+```
+
 #### 归一化
 
-$$x =
+$$\mathrm{MinMax}(x) =
     \left(\dfrac{x - x_{min}}{x_{max} - x_{min}} \right)
     \times
     (r_{max} - r_{min})
@@ -49,17 +61,76 @@ $$
 
 **缺陷**：归一化易受异常点影响。
 
+```python
+import numpy as np
+from sklearn.preprocessing import MinMaxScaler
+
+x = np.array([1, 2, 3]).reshape(-1, 1)
+y1 = MinMaxScaler().fit_transform(x)
+y2 = (x - np.min(x)) / (np.max(x) - np.min(x))
+print(y1)
+# [[0. ]
+#  [0.5]
+#  [1. ]]
+print(y2)
+# [[0. ]
+#  [0.5]
+#  [1. ]]
+```
+
 #### 标准化
 
-$$x = \dfrac{x - x_{mean}}{x_σ}$$
+$$\mathrm{Std}(x) = \dfrac{x - x_{mean}}{x_σ}$$
 
 变换到均值为0，方差为1的范围内。数据量充足时，受异常点影响较小。
+
+```python
+import numpy as np
+from sklearn.preprocessing import StandardScaler
+
+x = np.array([1, 2, 3]).reshape(-1, 1)
+y1 = StandardScaler().fit_transform(x)
+y2 = (x - np.mean(x)) / np.std(x)
+print(y1)
+# [[-1.22474487]
+#  [ 0.        ]
+#  [ 1.22474487]]
+print(y2)
+# [[-1.22474487]
+#  [ 0.        ]
+#  [ 1.22474487]]
+```
 
 #### 正则化
 
 $$L_1(x) = \dfrac{x}{ \sum\limits_{j\ of\ cols} |x_j| }$$
 
 $$L_2(x) = \dfrac{x}{ \sqrt{ \sum\limits_{j\ of\ cols} x_j^2 } }$$
+
+```python
+import os
+import numpy as np
+from sklearn.preprocessing import normalize as normalize_sklearn
+import torch
+from torch.nn.functional import normalize as normalize_torch
+import tensorflow as tf
+os.environ['CUDA_VISIBLE_DEVICES'] = '-1'  # 隐藏GPU
+
+x = np.array([1, 2, 3]).reshape(1, -1)
+y1 = x / np.sqrt(np.sum(np.square(x)))
+y2 = normalize_sklearn(x, norm='l2')
+y3 = normalize_torch(torch.as_tensor(x, dtype=torch.float64), p=2).numpy()
+y4 = tf.nn.l2_normalize(tf.constant(x, dtype=tf.float64)).numpy()
+
+print(y1)
+print(y2)
+print(y3)
+print(y4)
+# [[0.26726124 0.53452248 0.80178373]]
+# [[0.26726124 0.53452248 0.80178373]]
+# [[0.26726124 0.53452248 0.80178373]]
+# [[0.26726124 0.53452248 0.80178373]]
+```
 
 ## 常用内容
 
