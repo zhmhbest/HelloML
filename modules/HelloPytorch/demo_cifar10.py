@@ -1,5 +1,4 @@
 import os
-import time
 import torch
 from torch import optim
 from torch.nn import Module
@@ -7,7 +6,7 @@ from torch.nn import ReLU, Flatten
 from torch.nn import Conv2d, MaxPool2d, Linear
 from torch.nn import CrossEntropyLoss
 
-from support.dataset.cifar10 import load_data, show_images
+from support.dataset.cifar10 import load_data_fixed, show_images
 from support.dataset import DataHolder
 from torchvision.transforms import transforms
 from torch.utils.data.dataloader import DataLoader
@@ -27,15 +26,15 @@ dump_model = f"dump/{os.path.splitext(os.path.basename(__file__))[0]}.pt"
     ■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■
 """
 print("\n--- Data Loading")
-x_raw_train, y_raw_train, x_raw_test, y_raw_test, y_classes = load_data()
-size_train = len(x_raw_train)
-size_test = len(x_raw_test)
+x_raw_train, y_raw_train, x_raw_test, y_raw_test, y_classes = load_data_fixed()
+SIZE_TRAIN = len(x_raw_train)
+SIZE_TEST = len(x_raw_test)
+INPUT_SHAPE = x_raw_train[0].shape
+OUTPUT_SHAPE = y_raw_train[0].shape
 
 # 图片（高、宽、通道）
-input_shape = x_raw_train[0].shape
-print(f"(H, W, C) = {input_shape}")
-print(f"Size(train) = {size_train}")
-print(f"Size(test) = {size_test}")
+print(f"INPUT, OUTPUT = {INPUT_SHAPE}, {OUTPUT_SHAPE}")
+print(f"Size(train, test) = {SIZE_TRAIN}, {SIZE_TEST}")
 
 # 显示头10张图片
 # show_images(x_raw_train[0:10], y_raw_train[0:10], y_classes)
@@ -50,8 +49,12 @@ transform = transforms.Compose([
     transforms.ToTensor(),
     transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5)),
 ])
-xy_train_loader = DataLoader(DataHolder(x_raw_train, y_raw_train, transform), batch_size=128, shuffle=True, num_workers=0)
-xy_test_loader = DataLoader(DataHolder(x_raw_test, y_raw_test, transform), batch_size=128, shuffle=False, num_workers=0)
+xy_train_loader = DataLoader(
+    DataHolder(x_raw_train, y_raw_train, transform), batch_size=128, shuffle=True, num_workers=0
+)
+xy_test_loader = DataLoader(
+    DataHolder(x_raw_test, y_raw_test, transform), batch_size=128, shuffle=False, num_workers=0
+)
 # for i, (x_batch, y_batch) in enumerate(xy_train_loader, 0):
 print("--- Data Loaded\n")
 
@@ -62,7 +65,7 @@ print("--- Data Loaded\n")
     ■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■
 """
 print("\n--- Model Building")
-filtered_size = get_cnn_filtered_size(input_shape[0:2], 5)
+filtered_size = get_cnn_filtered_size(INPUT_SHAPE[0:2], 5)
 filtered_size = get_cnn_filtered_size(filtered_size, 2, 2)
 filtered_size = get_cnn_filtered_size(filtered_size, 5)
 filtered_size = get_cnn_filtered_size(filtered_size, 2, 2)
@@ -101,6 +104,7 @@ for item in model.state_dict():
 print("--- Model Builded\n")
 
 # 加载历史模型数据
+accuracy_last_train, accuracy_last_test = 0, 0
 if os.path.exists(dump_model):
     print("\n--- Model Loading")
     checkpoint = torch.load(dump_model)
@@ -126,6 +130,7 @@ def train(epoch, print_each=100):
             # 前向传播
             optimizer.zero_grad()
             y_predict = model(x_batch)
+            # print(y_predict.shape)
 
             # 计算损失
             loss_val = criterion(y_predict, y_batch)
@@ -141,7 +146,7 @@ def train(epoch, print_each=100):
 
 
 print("\n--- Training")
-train(2)
+train(4)
 print("--- Trained\n")
 
 
@@ -153,7 +158,7 @@ print("--- Trained\n")
 
 
 def get_correction(loader: DataLoader):
-    global size_train
+    global SIZE_TRAIN
     total = 0
     correction = 0
     with torch.no_grad():
@@ -180,10 +185,14 @@ print("--- Tested\n")
     模型持久化
     ■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■
 """
-print("\n--- Saving")
-torch.save({
-    "model": model.state_dict(),
-    "optimizer": optimizer.state_dict(),
-    "accuracy": [accuracy_train, accuracy_test]
-}, dump_model)
-print("--- Saved\n")
+if accuracy_test > accuracy_last_test:
+    print("\n--- Saving")
+    torch.save({
+        "model": model.state_dict(),
+        "optimizer": optimizer.state_dict(),
+        "accuracy": [accuracy_train, accuracy_test]
+    }, dump_model)
+    print("--- Saved\n")
+else:
+    print("已放弃保持模型！")
+    print("模型可能已经过拟合！")

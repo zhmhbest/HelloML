@@ -13,10 +13,10 @@ from sklearn.preprocessing import OneHotEncoder, MinMaxScaler
 from tensorflow.python.keras.datasets.mnist import load_data
 (x_train, y_train), (x_test, y_test) = load_data()
 
-size_train = x_train.shape[0]
+SIZE_TRAIN = x_train.shape[0]
 size_test = x_test.shape[0]
 
-x_train = x_train.reshape(size_train, -1)
+x_train = x_train.reshape(SIZE_TRAIN, -1)
 x_test = x_test.reshape(size_test, -1)
 
 scaler = MinMaxScaler()
@@ -83,7 +83,7 @@ TRAINING_TIMES = 3000
 learning_rate = tf.train.exponential_decay(
     LEARNING_RATE_BASE,
     global_step,
-    size_train / BATCH_SIZE, LEARNING_RATE_DECAY,
+    SIZE_TRAIN / BATCH_SIZE, LEARNING_RATE_DECAY,
     staircase=True
 )
 batch = BatchGenerator(x_train, y_train, BATCH_SIZE, BATCH_SIZE/4)
