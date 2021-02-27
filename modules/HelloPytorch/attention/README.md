@@ -6,7 +6,7 @@
 graph LR;
     inputs{输入};
     outputs{输出};
-    inputs --> inputEmbedding --> Encoder --> outputEmbedding --> Decoder --> outputs;
+    inputs -- inputEmbedding --> Encoder -- outputEmbedding --> Decoder --> outputs;
 
     subgraph TheEncoder[Encoder]
         EncoderOutput{y};
@@ -64,6 +64,9 @@ graph LR;
 $$Norm(x) = w \dfrac{x - Mean(x)}{Std(x) + eps} + b$$
 
 ```python
+import torch
+
+
 class LayerNorm(torch.nn.Module):
     """
     Construct a layernorm module.
@@ -109,3 +112,13 @@ if __name__ == '__main__':
     plt.show()
 
 ```
+
+## Core
+
+### SelfAttention
+
+pass
+
+### FeedForward
+
+pass
