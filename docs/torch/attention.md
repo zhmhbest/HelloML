@@ -1,5 +1,7 @@
 # [Attention is all you need](./index.html)
 
+[TOC]
+
 ## Architecture
 
 ```mermaid
@@ -80,13 +82,7 @@ graph TD;
     DecoderLayer3Output --> Liner --> Softmax;
 ```
 
-## Base
-
-### BatchNorm
-
-pass
-
-### LayerNorm
+## LayerNorm
 
 $$Norm(x) = w \dfrac{x - Mean(x)}{Std(x) + eps} + b$$
 
@@ -138,23 +134,21 @@ if __name__ == '__main__':
 
 ```
 
-## Core
+## Attention
 
-### Self-Attention
+### Scaled Dot-Product Attention
 
 ```mermaid
 graph LR;
-    subgraph SelfAttentionLayer[Self Attention Layer]
-        x{输入};
-        y{输出};
-        dotQK((.));
-        dotQKV((.));
-        x --> Q --> dotQK;
-        x --> K -- Transpose --> dotQK;
-        dotQK -- Softmax --> dotQKV;
-        x --> V --> dotQKV;
-        dotQKV --> y;
-    end
+    x{Input};
+    y{Output};
+    dotQK((.));
+    dotQKV((.));
+    x --> Q --> dotQK;
+    x --> K -- Transpose --> dotQK;
+    dotQK -- Softmax --> dotQKV;
+    x --> V --> dotQKV;
+    dotQKV --> y;
 ```
 
 $$\mathrm{Attention}(Q, K, V) = \mathrm{Softmax}(\frac{QK^T}{\sqrt{d_k}})V$$
@@ -191,6 +185,8 @@ def attention(q, k, v, mask=None, dropout=None):
 
 ```
 
-### Feed-Forward
+### Multi-Head Attention
 
-pass
+$$\mathrm{MultiHead}(Q, K, V) = \mathrm{Concat}(\mathrm{head_1}, ...,\mathrm{head_h})W^O$$
+
+- $\mathrm{head_i} = \mathrm{Attention}(QW^Q_i, KW^K_i, VW^V_i)$
