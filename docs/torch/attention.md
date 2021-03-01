@@ -16,7 +16,7 @@ graph TD;
             EncoderLayer1Input{Input};
             EncoderLayer1Output{Output};
             EncoderLayer1Add((+));
-            EncoderLayer1Model[Self Atention Layer];
+            EncoderLayer1Model[Multi-Head Atention];
             EncoderLayer1Input --> EncoderLayer1Model;
             EncoderLayer1Input --> EncoderLayer1Model;
             EncoderLayer1Input --> EncoderLayer1Model;
@@ -29,7 +29,7 @@ graph TD;
             EncoderLayer2Input{Input};
             EncoderLayer2Output{Output};
             EncoderLayer2Add((+));
-            EncoderLayer2Model[Feed Forward Layer];
+            EncoderLayer2Model[Feed Forward];
             EncoderLayer2Input --> EncoderLayer2Model --> EncoderLayer2Add;
             EncoderLayer2Input --> EncoderLayer2Add -- LayerNorm --> EncoderLayer2Output;
         end
@@ -47,7 +47,7 @@ graph TD;
             DecoderLayer1Input{Input};
             DecoderLayer1Output{Output};
             DecoderLayer1Add((+));
-            DecoderLayer1Model[Masked Self Atention Layer];
+            DecoderLayer1Model[Masked Multi-Head Atention];
             DecoderLayer1Input --> DecoderLayer1Model;
             DecoderLayer1Input --> DecoderLayer1Model;
             DecoderLayer1Input --> DecoderLayer1Model;
@@ -62,7 +62,7 @@ graph TD;
             style DecoderLayer2 stroke:#333,stroke-width:2px;
             DecoderLayer2Output{Output};
             DecoderLayer2Add((+));
-            DecoderLayer2Model[Self Atention Layer];
+            DecoderLayer2Model[Multi-Head Atention];
             DecoderLayer2Model --> DecoderLayer2Add -- LayerNorm --> DecoderLayer2Output;
         end
 
@@ -73,7 +73,7 @@ graph TD;
             DecoderLayer3Input{Input};
             DecoderLayer3Output{Output};
             DecoderLayer3Add((+));
-            DecoderLayer3Model[Feed Forward Layer];
+            DecoderLayer3Model[Feed Forward];
             DecoderLayer3Input --> DecoderLayer3Model --> DecoderLayer3Add;
             DecoderLayer3Input --> DecoderLayer3Add -- LayerNorm --> DecoderLayer3Output;
         end
@@ -146,7 +146,7 @@ graph LR;
     dotQKV((.));
     x --> Q --> dotQK;
     x --> K -- Transpose --> dotQK;
-    dotQK -- Softmax --> dotQKV;
+    dotQK -- Scale --> Softmax --> dotQKV;
     x --> V --> dotQKV;
     dotQKV --> y;
 ```
@@ -186,6 +186,10 @@ def attention(q, k, v, mask=None, dropout=None):
 ```
 
 ### Multi-Head Attention
+
+![Multi-Head Attention](images/Multi-Head-Attention.png)
+
+Multi-head attention allows the model to jointly attend to information from different representation subspaces at different positions. With a single attention head, averaging inhibits this.
 
 $$\mathrm{MultiHead}(Q, K, V) = \mathrm{Concat}(\mathrm{head_1}, ...,\mathrm{head_h})W^O$$
 
