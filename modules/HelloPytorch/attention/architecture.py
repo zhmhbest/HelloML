@@ -1,22 +1,22 @@
-import torch.nn as nn
-import torch.nn.functional as F
-import math
-from .base import clones, LayerNorm, subsequent_mask
+from torch import Tensor
+from torch import nn
+from .base import clones, LayerNorm
 
 
 class Layer(nn.Module):
-    pass
+    def __len__(self) -> int:
+        raise NotImplementedError()
 
 
 class Coder(nn.Module):
     def __init__(self, layer: Layer, loop: int, norm: nn.Module = LayerNorm):
         """
         :param layer: 基础层
-        :param loop:  循环次数
+        :param loop:  基础层循环次数
         """
         super(Coder, self).__init__()
         self.layers = clones(layer, loop)
-        self.norm = norm
+        self.norm = norm(len(layer))
 
     def forward(self, x, *args):
         for layer in self.layers:
@@ -34,49 +34,15 @@ class Decoder(Coder):
     #  forward(self, x, memory, src_mask, tgt_mask)
 
 
-class Generator(nn.Module):
-    def __init__(self, d_model: int, vocab: int):
-        super(Generator, self).__init__()
-        self.proj = nn.Linear(d_model, vocab)
-
-    def forward(self, x):
-        return F.log_softmax(self.proj(x), dim=-1)
-
-
-class Embeddings(nn.Module):
-    def __init__(self, d_model: int, vocab: int):
-        super(Embeddings, self).__init__()
-        self.lut = nn.Embedding(vocab, d_model)
-        self.d_model = d_model
-
-    def forward(self, x):
-        return self.lut(x) * math.sqrt(self.d_model)
-
-
 class EncoderDecoder(nn.Module):
-    def __init__(
-            self,
-            encoder: Encoder,
-            decoder: Decoder,
-            src_embed: nn.Module,
-            tgt_embed: nn.Module,
-            generator: Generator
-    ):
-        super(EncoderDecoder, self).__init__()
-        self.encoder = encoder
-        self.decoder = decoder
-        self.src_embed = src_embed
-        self.tgt_embed = tgt_embed
-        self.generator = generator
+    def encode(self, x: Tensor, x_mask) -> Tensor:
+        raise NotImplementedError()
 
-    def forward(self, src, tgt, src_mask, tgt_mask):
+    def decode(self, m: Tensor, m_mask, x: Tensor, x_mask) -> Tensor:
+        raise NotImplementedError()
+
+    def forward(self, x, y, x_mask, y_mask):
         return self.decode(
-            self.encode(src, src_mask),
-            src_mask, tgt, tgt_mask
+            self.encode(x, x_mask), x_mask,
+            y, y_mask
         )
-
-    def encode(self, src, src_mask):
-        return self.encoder(self.src_embed(src), src_mask)
-
-    def decode(self, memory, src_mask, tgt, tgt_mask):
-        return self.decoder(self.tgt_embed(tgt), memory, src_mask, tgt_mask)
