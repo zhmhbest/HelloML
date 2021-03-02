@@ -1,20 +1,37 @@
 import math
 import torch
-import torch.nn as nn
-import torch.nn.functional as F
+from torch import nn
+from torch import Tensor, BoolTensor
+from torch.nn import functional as F
 from .base import clones
 
 
-def attention(query, key, value, mask=None, dropout=None):
-    """Compute 'Scaled Dot Product Attention'"""
-    d_k = query.size(-1)
-    scores = torch.matmul(query, key.transpose(-2, -1)) / math.sqrt(d_k)
+def attention(
+        q: Tensor, k: Tensor, v: Tensor,
+        mask: BoolTensor = None, dropout: nn.Dropout = None
+):
+    """
+    Compute 'Scaled Dot Product Attention'
+    :param q: [batch_size, time_step, feature_size, ...]
+    :param k: [batch_size, time_step, feature_size, ...]
+    :param v: [batch_size, time_step, feature_size, ...]
+    :param mask:
+        tensor([[ True, False],
+                [ True, True]])
+    :param dropout:
+    :return:
+    """
+    # d_k = query.size(-1)
+    d_k = q.shape[-1]
+    k_t = k.transpose(-2, -1)
+    scores = torch.matmul(q, k_t) / math.sqrt(d_k)
     if mask is not None:
-        scores = scores.masked_fill(mask == 0, -1e9)
-    p_attn = F.softmax(scores, dim=-1)
+        # Fills elements of tensor with value where mask is True.
+        scores = torch.masked_fill(scores, mask, -1e9)
+    result = F.softmax(scores, dim=-1)
     if dropout is not None:
-        p_attn = dropout(p_attn)
-    return torch.matmul(p_attn, value), p_attn
+        result = dropout(result)
+    return torch.matmul(result, v), result
 
 
 class MultiHeadedAttention(nn.Module):
@@ -23,8 +40,8 @@ class MultiHeadedAttention(nn.Module):
         assert d_model % h == 0
         self.d_k = d_model // h
         self.h = h
-
-        self.linears = clones(nn.Linear(d_model, d_model), 4)
+        self.qkv_linears = clones(nn.Linear(d_model, d_model), 3)
+        self.final_linear = nn.Linear(d_model, d_model)
         self.attn = None
         self.dropout = nn.Dropout(p=dropout)
 
@@ -37,7 +54,7 @@ class MultiHeadedAttention(nn.Module):
         # 1) Do all the linear projections in batch from d_model => h x d_k
         query, key, value = \
             [l(x).view(nbatches, -1, self.h, self.d_k).transpose(1, 2)
-             for l, x in zip(self.linears, (query, key, value))]
+             for l, x in zip(self.qkv_linears, (query, key, value))]
 
         # 2) Apply attention on all the projected vectors in batch.
         x, self.attn = attention(query, key, value, mask=mask,
@@ -46,7 +63,7 @@ class MultiHeadedAttention(nn.Module):
         # 3) "Concat" using a view and apply a final linear.
         x = x.transpose(1, 2).contiguous() \
             .view(nbatches, -1, self.h * self.d_k)
-        return self.linears[-1](x)
+        return self.final_linear(x)
 
 
 class PositionWiseFeedForward(nn.Module):
