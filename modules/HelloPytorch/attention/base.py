@@ -15,14 +15,14 @@ class LayerNorm(nn.Module):
     """
     Construct a layernorm module
     """
-    def __init__(self, feature_size: int, eps=1e-6):
+    def __init__(self, feature_size: int, eps: float = 1e-6):
         super(LayerNorm, self).__init__()
         import torch
         self.w = nn.Parameter(torch.ones(feature_size))
         self.b = nn.Parameter(torch.zeros(feature_size))
         self.eps = eps
 
-    def forward(self, x):
+    def forward(self, x: Tensor):
         mean = x.mean(-1, keepdim=True)
         std = x.std(-1, keepdim=True)
         return self.w * (x - mean) / (std + self.eps) + self.b
