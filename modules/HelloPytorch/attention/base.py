@@ -37,22 +37,27 @@ if __name__ == '__main__':
     print(LayerNorm(_feature_size)(_x))
 
 
-def subsequent_mask(size: int):
+def subsequent_mask(size: int) -> BoolTensor:
     """
     Mask out subsequent positions
+    :param size: time_step
+    :return:
     """
     mask = np.triu(np.ones((1, size, size), dtype=np.uint8), k=1) == 0
-    return torch.from_numpy(mask)
+    return BoolTensor(mask)
 
 
-if __name__ == '__main__':
-    print("Test Mask")
-    import matplotlib.pyplot as plt
-    _size = 100
-    _data = torch.rand(1, _size, _size)
-    _mask = subsequent_mask(_size)
-    _result = torch.masked_fill(_data, _mask, 0)
-    plt.figure(figsize=(5, 5))
-    plt.imshow(_result[0])
-    plt.grid()
-    plt.show()
+# if __name__ == '__main__':
+#     print("Test Mask")
+#     import matplotlib.pyplot as plt
+#     _size = 100
+#     _data = torch.rand(1, _size, _size)
+#     _mask = subsequent_mask(_size)
+#     _result = torch.masked_fill(_data, _mask, 0)
+#     print(_data)
+#     print(_mask)
+#     print(_result)
+#     plt.figure(figsize=(5, 5))
+#     plt.imshow(_result[0])
+#     plt.grid()
+#     plt.show()
