@@ -14,6 +14,8 @@ def duplicate_module(module: nn.Module, loop_times: int):
 class LayerNorm(nn.Module):
     """
     Construct a layernorm module
+    - 《Deep Residual Learning for Image Recognition》 https://arxiv.org/abs/1512.03385
+    - 《Layer Normalization》 https://arxiv.org/abs/1607.06450
     """
     def __init__(self, feature_size: int, eps: float = 1e-6):
         super(LayerNorm, self).__init__()
