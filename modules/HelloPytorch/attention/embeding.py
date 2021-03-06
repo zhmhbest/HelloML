@@ -1,5 +1,4 @@
 from attention.common_header import *
-from torch.autograd import Variable
 
 
 class Embeddings(nn.Module):
@@ -7,14 +6,14 @@ class Embeddings(nn.Module):
         嵌入
         - 《Using the Output Embedding to Improve Language Models》 https://arxiv.org/abs/1608.05859
     """
-
-    def __init__(self, d_model, vocab):
+    def __init__(self, vocabulary_size: int, d_model: int):
         super(Embeddings, self).__init__()
-        self.embed = nn.Embedding(vocab, d_model)
-        self.d_model = d_model
+        self.embedding = nn.Embedding(vocabulary_size, d_model)
+        self.d_sm = math.sqrt(d_model)
 
-    def forward(self, x):
-        return self.embed(x) * math.sqrt(self.d_model)
+    def forward(self, x: Tensor):
+        x = self.embedding(x)
+        return x * self.d_sm
 
 
 class PositionalEncoding(nn.Module):

@@ -38,29 +38,37 @@ class Coder(nn.Module):
         return self.norm(x)
 
 
+class Encoder(Coder):
+    pass
+
+
+class Decoder(Coder):
+    pass
+
+
 class EncoderLayer(LayerInterface):
     def __init__(
             self,
-            feature_size: int,
+            d_model: int,
             ma: AttentionInterface,
             ff: FeedForwardInterface,
             dropout: float = 0.1
     ):
         super(EncoderLayer, self).__init__()
-        self.feature_size = feature_size
+        self.d_model = d_model
 
-        self.norm1 = LayerNorm(feature_size)
+        self.norm1 = LayerNorm(d_model)
         self.ma = ma
         self.dropout1 = nn.Dropout(dropout)
 
-        self.norm2 = LayerNorm(feature_size)
+        self.norm2 = LayerNorm(d_model)
         self.ff = ff
         self.dropout2 = nn.Dropout(dropout)
 
     def __len__(self) -> int:
-        return self.feature_size
+        return self.d_model
 
-    def forward(self, x: Tensor, x_mask: Tensor):
+    def forward(self, x: Tensor, x_mask: Tensor = None):
         x = self.dropout1(
             (lambda _x_: self.ma(_x_, _x_, _x_, x_mask))(self.norm1(x))
         ) + x
@@ -97,7 +105,7 @@ class DecoderLayer(LayerInterface):
     def __len__(self) -> int:
         return self.feature_size
 
-    def forward(self, x: Tensor, x_mask: Tensor, m: Tensor, m_mask: Tensor):
+    def forward(self, x: Tensor, m: Tensor, x_mask: Tensor, m_mask: Tensor):
         x = self.dropout1(
             (lambda _x_: self.mma(_x_, _x_, _x_, x_mask))(self.norm1(x))
         ) + x
@@ -108,25 +116,3 @@ class DecoderLayer(LayerInterface):
             self.ff(self.norm3(x))
         ) + x
         return x
-
-
-class Encoder(Coder):
-    def __init__(self, layer: EncoderLayer, loop_times: int):
-        super().__init__(layer, loop_times)
-    # forward(self, x, x_mask)
-
-
-class Decoder(Coder):
-    def __init__(self, layer: DecoderLayer, loop_times: int):
-        super().__init__(layer, loop_times)
-    # forward(self, y, y_mask, m, m_mask)
-
-
-class Generator(nn.Module):
-    """Define standard linear + softmax generation step."""
-    def __init__(self, d_model, vocab):
-        super(Generator, self).__init__()
-        self.proj = nn.Linear(d_model, vocab)
-
-    def forward(self, x):
-        return F.log_softmax(self.proj(x), dim=-1)

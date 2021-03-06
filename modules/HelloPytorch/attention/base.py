@@ -30,6 +30,25 @@ class LayerNorm(nn.Module):
         return self.w * (x - mean) / (std + self.eps) + self.b
 
 
+class Dense(nn.Module):
+    def __init__(self, input_dim: int, output_dim: int, bias: bool = True) -> None:
+        super(Dense, self).__init__()
+        self.input_dim = input_dim
+        self.output_dim = output_dim
+        self.weight = nn.Parameter(torch.randn(input_dim, output_dim))
+        if bias:
+            self.bias = nn.Parameter(torch.zeros(output_dim))
+        else:
+            self.register_parameter('bias', None)
+
+    def forward(self, x: Tensor) -> Tensor:
+        # (n, i_dim) × (i_dim, o_dim) = (n, o_dim)
+        x = torch.matmul(x, self.weight)
+        if self.bias is not None:
+            x = torch.add(x, self.bias)
+        return x
+
+
 if __name__ == '__main__':
     print("Test LayerNorm")
     _batch_size = 2
