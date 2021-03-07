@@ -1,13 +1,13 @@
 from typing import Union
 from attention.common_header import *
-from attention.base import duplicate_module
+from attention.base import duplicate_module, Dense, subsequent_mask
 from attention.architecture import AttentionInterface, FeedForwardInterface
 
 
 def attention(
         q: Tensor, k: Tensor, v: Tensor,
         mask: Union[BoolTensor, Tensor] = None,
-        dropout: nn.Dropout = None
+        dropout_module: nn.Dropout = None
 ):
     """
     Compute 'Scaled Dot Product Attention'
@@ -15,44 +15,48 @@ def attention(
     :param k:
     :param v:
     :param mask: [1, time_step, time_step] | [1, 1, time_step, time_step]
-    :param dropout:
+    :param dropout_module:
     :return:
     """
     d_k = q.shape[-1]
     k_t = k.transpose(-2, -1)  # Transpose the last two dimensions
     scores = torch.matmul(q, k_t) / math.sqrt(d_k)
+    # [batch_size, time_step, time_step] | [batch_size, h, time_step, time_step]
+
     if mask is not None:
         # Fills elements of tensor with value where mask is True.
         scores = torch.masked_fill(scores, mask, -1e9)
     parm = F.softmax(scores, dim=-1)
-    if dropout is not None:
-        parm = dropout(parm)
+    if dropout_module is not None:
+        parm = dropout_module(parm)
     return torch.matmul(scores, v), parm
 
 
-# if __name__ == '__main__':
-#     print("Test attention")
-#     import matplotlib.pyplot as plt
-#     _feature_size = 20
-#     _time_step = 5
-#     _x = torch.rand(1, _time_step, _feature_size)
-#     _mask = subsequent_mask(_time_step)
-#     _y, _ = attention(_x, _x, _x, None)
-#     _y_masked, _ = attention(_x, _x, _x, _mask)
-#     fig = plt.figure(figsize=(8, 6))
-#     ax1 = fig.add_subplot(311)
-#     ax1.imshow(_x[0])
-#     ax1.set_title("x")
-#     ax1.grid()
-#     ax2 = fig.add_subplot(312)
-#     ax2.imshow(_y[0])
-#     ax2.set_title("y")
-#     ax2.grid()
-#     ax3 = fig.add_subplot(313)
-#     ax3.imshow(_y_masked[0])
-#     ax3.set_title("Masked y")
-#     ax3.grid()
-#     plt.show()
+if __name__ == '__main__':
+    print("Test attention")
+    import matplotlib.pyplot as plt
+    _batch_size = 1
+    _time_step = 5
+    _feature_size = 20
+    _x = torch.rand(_batch_size, _time_step, _feature_size)
+    _y, _ = attention(_x, _x, _x, None)
+    _mask = subsequent_mask(_time_step)
+    _y_masked, _ = attention(_x, _x, _x, _mask)
+
+    fig = plt.figure(figsize=(8, 6))
+    ax1 = fig.add_subplot(311)
+    ax1.imshow(_x[0])
+    ax1.set_title("x")
+    ax1.grid()
+    ax2 = fig.add_subplot(312)
+    ax2.imshow(_y[0])
+    ax2.set_title("y")
+    ax2.grid()
+    ax3 = fig.add_subplot(313)
+    ax3.imshow(_y_masked[0])
+    ax3.set_title("Masked y")
+    ax3.grid()
+    plt.show()
 
 
 class MultiHeadedAttention(AttentionInterface):
@@ -63,8 +67,8 @@ class MultiHeadedAttention(AttentionInterface):
         self.d_k = d_model // h
         # d_model = d_k * head
 
-        self.qkv_linears = duplicate_module(nn.Linear(d_model, d_model), 3)
-        self.final_linear = nn.Linear(d_model, d_model)
+        self.qkv_linears = duplicate_module(Dense(d_model, d_model), 3)
+        self.final_linear = Dense(d_model, d_model)
         self.attention = None
         self.dropout = nn.Dropout(dropout)
 
@@ -77,22 +81,22 @@ class MultiHeadedAttention(AttentionInterface):
     ):
         batch_size = query.shape[0]
         if mask is not None:
-            # [1, time_step, time_step]
             mask = torch.unsqueeze(mask, 1)
-            # [1, 1, time_step, time_step]
 
         # 1) Do all the linear projections in batch from d_model => h x d_k .
         query, key, value = [
-            # [batch_size, time_step, d_model]
-            # [batch_size, time_step, h, d_k]
+            # [batch_size, d_model]
+            # [batch_size, 1, h, d_k]
             linear(x).view(batch_size, -1, self.h, self.d_k).transpose(1, 2)
-            # [batch_size, h, time_step, d_k]
+            # [batch_size, h, 1, d_k]
             for linear, x in zip(self.qkv_linears, (query, key, value))
         ]
+        print("query =", query.shape)
+        exit()
 
         # 2) Apply attention on all the projected vectors in batch.
         x, self.attention = attention(
-            query, key, value, mask=mask, dropout=self.dropout
+            query, key, value, mask=mask, dropout_module=self.dropout
         )
 
         # 3) "Concat" using a view and apply a final linear.
@@ -133,8 +137,8 @@ class PositionWiseFeedForward(FeedForwardInterface):
             dropout: float = 0.1
     ):
         super(PositionWiseFeedForward, self).__init__()
-        self.w_1 = nn.Linear(d_model, d_ff)
-        self.w_2 = nn.Linear(d_ff, d_model)
+        self.w_1 = Dense(d_model, d_ff)
+        self.w_2 = Dense(d_ff, d_model)
         self.dropout = nn.Dropout(dropout)
 
     def forward(self, x: Tensor):
