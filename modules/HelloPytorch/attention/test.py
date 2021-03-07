@@ -1,16 +1,29 @@
 from attention.common_header import *
 
 
-def generate_test_data(num_batches: int, batch_size: int, feature_size, target_size: int = 1, factor: int = 11):
+def test_data_generator(
+        num_batches: int,
+        batch_size: int,
+        time_step: int,
+        feature_size: int,
+        target_size: int = 1
+) -> (Tensor, Tensor):
     for i in range(num_batches):
-        x_data = torch.randn(batch_size, feature_size)
-        y_data = torch.randn(batch_size, target_size)
-        x_batch = Variable(x_data, requires_grad=False)
-        y_batch = Variable(y_data, requires_grad=False)
+        x_batch = Variable(torch.randn(
+            batch_size, time_step, feature_size), requires_grad=False)
+        y_batch = Variable(torch.randn(
+            batch_size, time_step, target_size), requires_grad=False)
         yield x_batch, y_batch
 
 
+def get_test_data(**kwargs):
+    buffer = []
+    for xy_batch in test_data_generator(**kwargs):
+        buffer.append(xy_batch)
+    return buffer
+
+
 if __name__ == '__main__':
-    for _x, _y in generate_test_data(30, 20, 10, 11):
+    for _x, _y in test_data_generator(1, 10, 5, 8, 1):
         print(_x.shape, _y.shape)
 

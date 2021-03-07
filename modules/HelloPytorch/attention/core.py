@@ -85,48 +85,24 @@ class MultiHeadedAttention(AttentionInterface):
 
         # 1) Do all the linear projections in batch from d_model => h x d_k .
         query, key, value = [
-            # [batch_size, d_model]
-            # [batch_size, 1, h, d_k]
+            # [batch_size, time_step, d_model]
+            # [batch_size, time_step, h, d_k]
             linear(x).view(batch_size, -1, self.h, self.d_k).transpose(1, 2)
-            # [batch_size, h, 1, d_k]
+            # [batch_size, h, time_step, d_k]
             for linear, x in zip(self.qkv_linears, (query, key, value))
         ]
-        print("query =", query.shape)
-        exit()
 
         # 2) Apply attention on all the projected vectors in batch.
         x, self.attention = attention(
             query, key, value, mask=mask, dropout_module=self.dropout
         )
+        # [batch_size, h, time_step, d_k]
 
         # 3) "Concat" using a view and apply a final linear.
-        # [batch_size, h, time_step, d_k]
         x = x.transpose(1, 2).contiguous().view(batch_size, -1, self.h * self.d_k)
         # [batch_size, time_step, h, d_k]
         # [batch_size, time_step, d_model]
         return self.final_linear(x)
-
-
-# if __name__ == '__main__':
-#     print("Test Multi-head Attention")
-#     _batch_size = 1
-#     _time_step = 4
-#     _d_model = 10
-#     _h = 5
-#     _d_k = _d_model // _h
-#     _mask = subsequent_mask(_time_step)
-#     _mask = torch.unsqueeze(_mask, 1)
-#     print(_mask.shape)
-#     _x = torch.rand(_batch_size, _time_step, _d_model)
-#     print(_x.shape)
-#     _x = _x.view(_batch_size, -1, _h, _d_k)
-#     print(_x.shape)
-#     _x = _x.transpose(1, 2)
-#     print(_x.shape)
-#     _y, _ = attention(_x, _x, _x, _mask)
-#     print(_y.shape)
-#     _y = _y.transpose(1, 2).contiguous().view(_batch_size, -1, _h * _d_k)
-#     print(_y.shape)
 
 
 class PositionWiseFeedForward(FeedForwardInterface):
