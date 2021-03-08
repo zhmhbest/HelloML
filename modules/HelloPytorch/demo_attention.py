@@ -1,10 +1,8 @@
-from torch import nn, Tensor
-from attention import *
 from copy import deepcopy
-import torch
+from torch import nn, Tensor
 from torch import optim
 from torch.nn import MSELoss
-from attention.test import get_test_data
+from attention import *
 
 data_form = {
     "num_batches": 3,
@@ -20,6 +18,7 @@ class Transformer(nn.Module):
     """
     http://nlp.seas.harvard.edu/2018/04/03/attention.html#a-first--example
     """
+
     def __init__(
             self,
             feature_size: int,
