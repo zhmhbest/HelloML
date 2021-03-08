@@ -7,16 +7,19 @@ from torch.nn import MSELoss
 from attention.test import get_test_data
 
 data_form = {
-    "num_batches": 30,
-    "batch_size": 20,
-    "time_step": 10,
+    "num_batches": 3,
+    "batch_size": 10,
+    "time_step": 5,
     "feature_size": 10,
-    "target_size": 2
+    "target_size": 4
 }
 epoch = 2
 
 
 class Transformer(nn.Module):
+    """
+    http://nlp.seas.harvard.edu/2018/04/03/attention.html#a-first--example
+    """
     def __init__(
             self,
             feature_size: int,
@@ -79,6 +82,7 @@ print("data_o_shape =", data_holder[0][1].shape)
 print()
 
 for i in range(epoch):
+    print("epoch", i + 1)
     for x_batch, y_batch in data_holder:
         # 前向传播
         y_pred = model(x_batch, y_batch, None, None)
