@@ -7,6 +7,7 @@
       <module fileurl="file://$PROJECT_DIR$/modules/HelloPytorch/HelloPytorch.iml" filepath="$PROJECT_DIR$/modules/HelloPytorch/HelloPytorch.iml" />
       <module fileurl="file://$PROJECT_DIR$/modules/HelloSklearn/HelloSklearn.iml" filepath="$PROJECT_DIR$/modules/HelloSklearn/HelloSklearn.iml" />
       <module fileurl="file://$PROJECT_DIR$/modules/HelloTF1/HelloTF1.iml" filepath="$PROJECT_DIR$/modules/HelloTF1/HelloTF1.iml" />
+      <module fileurl="file://$PROJECT_DIR$/modules/IDSModule/IDSModule.iml" filepath="$PROJECT_DIR$/modules/IDSModule/IDSModule.iml" />
     </modules>
   </component>
 </project>

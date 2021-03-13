@@ -1,0 +1,79 @@
+﻿Destination Port,目的端口
+Flow Duration,流量持续时间
+Total Forward Packets,前向包总数
+Total Backward Packets,后向包总数
+Total Length of Forward Packets,前向包总长
+Total Length of Backward Packets,后向包的总长
+Forward Packet Length Max,前向包最大长度
+Forward Packet Length Min,前向包最小长度
+Forward Packet Length Mean,前向包平均长度
+Forward Packet Length Std,前向包标准长度
+Backward Packet Length Max,后向包最大长度
+Backward Packet Length Min,后向包最小长度
+Backward Packet Length Mean,后向包平均长度
+Backward Packet Length Std,后向包标准长度
+Flow Bytes/s,流（字节/秒）
+Flow Packets/s,流（包/秒）
+Flow IAT Mean,流-平均IAT
+Flow IAT Std,流-标准IAT
+Flow IAT Max,流-最大IAT
+Flow IAT Min,流-最小IAT
+Forward IAT Total,前向合计IAT
+Forward IAT Mean,前向平均IAT
+Forward IAT Std,前向标准IAT
+Forward IAT Max,前向最大IAT
+Forward IAT Min,前向最小IAT
+Backward IAT Total,向后IAT总计
+Backward IAT Mean,后向平均IAT
+Backward IAT Std,后向标准IAT
+Backward IAT Max,后向最大IAT
+Backward IAT Min,后向最小IAT
+Forward PSH Flags,前向PSH标志
+Backward PSH Flags,后向PSH标志
+Forward URG Flags,前向URG标志
+Backward URG Flags,后向URG标志
+Forward Header Length,前向头长度
+Backward Header Length,后向头长度
+Forward Packets/s,前向（包/秒）
+Backward Packets/s,后向（包/秒）
+Min Packet Length,包最小长度
+Max Packet Length,包最大长度
+Packet Length Mean,包平均长度
+Packet Length Std,包标准长度
+Packet Length Variance,包长度方差
+FIN Flag Count,FIN计数
+SYN Flag Count,SYN计数
+RST Flag Count,RST计数
+PSH Flag Count,PSH计数
+ACK Flag Count,ACK计数
+URG Flag Count,URG计数
+CWE Flag Count,CWE计数
+ECE Flag Count,ECE计数
+Down/Up Ratio,下降/上升比率
+Average Packet Size,平均包大小
+Avg Forward Segment Size,前向平均段大小
+Avg Backward Segment Size,后向平均段大小
+Forward Header Length,前向头长度
+Forward Avg Bytes/Bulk,前向 平均 字节/批量
+Forward Avg Packets/Bulk,前向 平均 包/批量
+Forward Avg Bulk Rate,前向 平均 主体率
+Backward Avg Bytes/Bulk,后向 平均 字节/批量
+Backward Avg Packets/Bulk,后向 平均 包/批量
+Backward Avg Bulk Rate,后向 平均 主体率
+Subflow Forward Packets,前向 子流 包
+Subflow Forward Bytes,前向 子流 字节
+Subflow Backward Packets,后向 子流 包
+Subflow Backward Bytes,后向 子流 字节
+Init_Win_bytes_forward,前向 初始化Win字节
+Init_Win_bytes_backward,后向 初始化Win字节
+act_data_pkt_Forward,前向 ACT数据包
+min_seg_size_forward,前向 最小分段大小
+Active Mean,活动平均值
+Active Std,活动标准值
+Active Max,活动最大值
+Active Min,活动最小值
+Idle Mean,闲置平均值
+Idle Std,闲置标准值
+Idle Max,闲置最大值
+Idle Min,闲置最小值
+Label,标签
