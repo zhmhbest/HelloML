@@ -4,15 +4,6 @@ from torch import optim
 from torch.nn import MSELoss
 from attention import *
 
-data_form = {
-    "num_batches": 3,
-    "batch_size": 10,
-    "time_step": 5,
-    "feature_size": 10,
-    "target_size": 4
-}
-epoch = 2
-
 
 class Transformer(nn.Module):
     """
@@ -71,28 +62,38 @@ class Transformer(nn.Module):
         return self.dense_r(r)
 
 
-model = Transformer(data_form['feature_size'], data_form['target_size'])
-loss_fn = MSELoss()
-optimizer = optim.SGD(model.parameters(), lr=0.01)
-optimizer.zero_grad()
-data_holder = get_test_data(**data_form)
-print("data_i_shape =", data_holder[0][0].shape)
-print("data_o_shape =", data_holder[0][1].shape)
-print()
+if __name__ == '__main__':
+    data_form = {
+        "num_batches": 3,
+        "batch_size": 10,
+        "time_step": 5,
+        "feature_size": 10,
+        "target_size": 4
+    }
+    epoch = 2
 
-for i in range(epoch):
-    print("epoch", i + 1)
-    for x_batch, y_batch in data_holder:
-        # 前向传播
-        y_pred = model(x_batch, y_batch, None, None)
-        # print("前向传播", y_pred.shape, y_batch.shape)
+    model = Transformer(data_form['feature_size'], data_form['target_size'])
+    loss_fn = MSELoss()
+    optimizer = optim.SGD(model.parameters(), lr=0.01)
+    optimizer.zero_grad()
+    data_holder = get_test_data(**data_form)
+    print("data_i_shape =", data_holder[0][0].shape)
+    print("data_o_shape =", data_holder[0][1].shape)
+    print()
 
-        # 计算损失
-        loss_val = loss_fn(y_batch, y_pred)
-        print("LossValue =", loss_val)
+    for i in range(epoch):
+        print("epoch", i + 1)
+        for x_batch, y_batch in data_holder:
+            # 前向传播
+            y_pred = model(x_batch, y_batch, None, None)
+            # print("前向传播", y_pred.shape, y_batch.shape)
 
-        # 反向传播
-        loss_val.backward()
+            # 计算损失
+            loss_val = loss_fn(y_batch, y_pred)
+            print("LossValue =", loss_val)
 
-        # 优化权重
-        optimizer.step()
+            # 反向传播
+            loss_val.backward()
+
+            # 优化权重
+            optimizer.step()
