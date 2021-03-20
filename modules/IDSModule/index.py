@@ -1,57 +1,61 @@
-from CICIDS2017 import make_iscx_dump, get_iscx_dump
-from demo_attention import Transformer
+import pickle
 import numpy as np
-import torch
-from torch import optim
-from torch.nn import MultiLabelSoftMarginLoss
-from sklearn.preprocessing import OneHotEncoder
+from sklearn.preprocessing import Normalizer, StandardScaler, OneHotEncoder
+from sklearn.model_selection import train_test_split
+from keras.models import Sequential, load_model
+from keras.layers import Dense, Activation
+from keras.losses import categorical_crossentropy
+from keras.optimizers import SGD
+
+"""
+    数据载入
+"""
+with open("./data/Friday-WorkingHours-Afternoon-DDos.pcap_ISCX.pkl", "rb") as fd:
+    xy_data = np.array(pickle.load(fd))
+    x_data = xy_data[:, :78]
+    y_data = xy_data[:, 78:]
 
 
 """
-    数据
+    数据预处理
 """
-BATCH_SIZE = 32
-make_iscx_dump(BATCH_SIZE)
-info, reader = get_iscx_dump()
-hot = OneHotEncoder()
-label = np.array(info['label']).reshape(-1, 1)
-hot.fit(label)
-# print(hot.transform(label).toarray())
-INPUT_SIZE = 78  # x_batch.shape[1]
-OUTPUT_SIZE = len(label)
-print(INPUT_SIZE, OUTPUT_SIZE)
+norm = StandardScaler()
+x_data = norm.fit_transform(x_data)
+
+one = OneHotEncoder(categories='auto')
+y_data = one.fit_transform(y_data).toarray()
+
+
+"""
+    数据划分
+"""
+x_train, x_test, y_train, y_test = train_test_split(x_data, y_data, test_size=0.2)
 
 
 """
     模型
 """
-model = Transformer(INPUT_SIZE, OUTPUT_SIZE)
-loss_fn = MultiLabelSoftMarginLoss()
-optimizer = optim.SGD(model.parameters(), lr=0.01)
-optimizer.zero_grad()
+model = Sequential()
+model.add(Dense(8, input_dim=x_data.shape[1]))
+model.add(Activation('tanh'))
+model.add(Dense(y_data.shape[1]))
+model.compile(
+    loss=categorical_crossentropy,
+    optimizer=SGD(lr=0.001)
+)
 
 
 """
-    训练
+    模型训练（首次）
 """
-index = 0
-for index in range(info['num_batches']):
-    x_batch, y_batch = reader.pop()
-    x_batch = torch.tensor(x_batch, dtype=torch.float32)
-    y_batch = torch.tensor(hot.transform(y_batch).toarray(), dtype=torch.float32)
+model.fit(
+    x_train, y_train,  # 训练数据
+    batch_size=32, epochs=10
+)
 
-    # 前向传播
-    y_pred = model(x_batch, y_batch, None, None)
 
-    # 计算损失
-    loss_val = loss_fn(y_batch, y_pred)
-    print("LossValue =", loss_val)
-
-    # 反向传播
-    loss_val.backward()
-
-    # 优化权重
-    optimizer.step()
-
-    if 10 == index:
-        break
+"""
+    模型评估
+"""
+score = model.evaluate(x_test, y_test, batch_size=32, verbose=0)
+print("score =", score)
