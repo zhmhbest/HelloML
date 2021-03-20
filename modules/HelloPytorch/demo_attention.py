@@ -64,7 +64,7 @@ class Transformer(nn.Module):
 
 if __name__ == '__main__':
     data_form = {
-        "num_batches": 3,
+        "num_batches": 200,
         "batch_size": 10,
         "time_step": 5,
         "feature_size": 10,
@@ -74,7 +74,7 @@ if __name__ == '__main__':
 
     model = Transformer(data_form['feature_size'], data_form['target_size'])
     loss_fn = MSELoss()
-    optimizer = optim.SGD(model.parameters(), lr=0.01)
+    optimizer = optim.SGD(model.parameters(), lr=0.0001)
     optimizer.zero_grad()
     data_holder = get_test_data(**data_form)
     print("data_i_shape =", data_holder[0][0].shape)
