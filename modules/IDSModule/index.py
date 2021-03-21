@@ -6,6 +6,7 @@ from keras.models import Sequential, load_model
 from keras.layers import Dense, Activation
 from keras.losses import categorical_crossentropy
 from keras.optimizers import SGD
+from model import SimpleDense
 
 """
     数据载入
@@ -38,6 +39,7 @@ x_train, x_test, y_train, y_test = train_test_split(x_data, y_data, test_size=0.
 model = Sequential()
 model.add(Dense(8, input_dim=x_data.shape[1]))
 model.add(Activation('tanh'))
+model.add(SimpleDense(64))
 model.add(Dense(y_data.shape[1]))
 model.compile(
     loss=categorical_crossentropy,
