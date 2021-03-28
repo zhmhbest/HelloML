@@ -1,5 +1,0 @@
-/data/CICIDS2017/**
-!/data/CICIDS2017/names.csv
-!/data/CICIDS2017/labels.csv
-test.py
-*.pkl
