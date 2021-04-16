@@ -29,3 +29,12 @@ keras==2.4.3                # 2020.06.25 https://pypi.org/project/keras/#history
 torch==1.7.1+cu101
 torchvision==0.8.2+cu101
 torchaudio===0.7.2
+
+# Model summary in PyTorch similar to `model.summary()` in Keras
+torchsummary==1.5.1
+
+# ProgressBar
+tqdm
+
+# Flexible and powerful tensor operations for readable and reliable code. Supports numpy, pytorch, tensorflow, and etc.
+einops
