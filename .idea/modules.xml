@@ -2,9 +2,9 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/HelloImage/HelloImage.iml" filepath="$PROJECT_DIR$/HelloImage/HelloImage.iml" />
-      <module fileurl="file://$PROJECT_DIR$/modules/HelloKeras/HelloKeras.iml" filepath="$PROJECT_DIR$/modules/HelloKeras/HelloKeras.iml" />
       <module fileurl="file://$PROJECT_DIR$/.idea/HelloML.iml" filepath="$PROJECT_DIR$/.idea/HelloML.iml" />
+      <module fileurl="file://$PROJECT_DIR$/modules/HelloImage/HelloImage.iml" filepath="$PROJECT_DIR$/modules/HelloImage/HelloImage.iml" />
+      <module fileurl="file://$PROJECT_DIR$/modules/HelloKeras/HelloKeras.iml" filepath="$PROJECT_DIR$/modules/HelloKeras/HelloKeras.iml" />
       <module fileurl="file://$PROJECT_DIR$/modules/HelloPytorch/HelloPytorch.iml" filepath="$PROJECT_DIR$/modules/HelloPytorch/HelloPytorch.iml" />
       <module fileurl="file://$PROJECT_DIR$/modules/HelloSklearn/HelloSklearn.iml" filepath="$PROJECT_DIR$/modules/HelloSklearn/HelloSklearn.iml" />
       <module fileurl="file://$PROJECT_DIR$/modules/HelloTF1/HelloTF1.iml" filepath="$PROJECT_DIR$/modules/HelloTF1/HelloTF1.iml" />
