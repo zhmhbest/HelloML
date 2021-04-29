@@ -2,8 +2,12 @@ numpy==1.16.4           # 2019.05.29 https://pypi.org/project/numpy/#history
 pandas==1.0.5           # 2020.06.18 https://pypi.org/project/pandas/#history
 matplotlib==3.2.2       # 2020.06.18 https://pypi.org/project/matplotlib/#history
 seaborn==0.11.1         # 2020.12.21 https://pypi.org/project/seaborn/#history
+
 # Python Imaging Library
-Pillow==7.2.0           # 2020.06.30 https://pypi.org/project/Pillow/#history
+Pillow
+# OpenCV
+opencv-python
+
 # Read and write HDF5 files
 h5py==2.10.0            # 2019.09.07 https://pypi.org/project/h5py/#history
 # Science
