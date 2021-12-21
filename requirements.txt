@@ -1,44 +1,45 @@
+# Read and write HDF5 files
+h5py==2.10.0            # 2019.09.07 https://pypi.org/project/h5py/#history
+# Dump
+joblib==0.16.0          # 2020.07.02 https://pypi.org/project/joblib/#history
+
+
 numpy==1.16.4           # 2019.05.29 https://pypi.org/project/numpy/#history
+scipy==1.4.1            # 2019.12.19 https://pypi.org/project/scipy/#history
 pandas==1.0.5           # 2020.06.18 https://pypi.org/project/pandas/#history
+scikit-learn==0.21.3    # 2019.07.30 https://pypi.org/project/scikit-learn/#history
+
+
 matplotlib==3.2.2       # 2020.06.18 https://pypi.org/project/matplotlib/#history
 seaborn==0.11.1         # 2020.12.21 https://pypi.org/project/seaborn/#history
+
 
 # Python Imaging Library
 Pillow
 # OpenCV
 opencv-python
 
-# Read and write HDF5 files
-h5py==2.10.0            # 2019.09.07 https://pypi.org/project/h5py/#history
-# Science
-scipy==1.4.1            # 2019.12.19 https://pypi.org/project/scipy/#history
-# Dump
-joblib==0.16.0          # 2020.07.02 https://pypi.org/project/joblib/#history
 
-jieba
-scikit-learn==0.21.3    # 2019.07.30 https://pypi.org/project/scikit-learn/#history
-
-
-# Tensorflow: https://tensorflow.google.cn/install/source_windows#gpu
-tensorflow==2.2.2           # 2021.01.07 https://pypi.org/project/tensorflow/#history
+# Tensorflow & Keras
+# https://pypi.org/project/tensorflow/#history
+# https://pypi.org/project/keras/#history
+# https://tensorflow.google.cn/install/source_windows#gpu
 tensorflow-gpu==2.2.2       # CUDA 10.1
-tensorboard==2.2.2
-keras==2.4.3                # 2020.06.25 https://pypi.org/project/keras/#history
+keras==2.4.3                # 2020.06.25
 
 
-# PyTorch: https://pytorch.org/get-started/previous-versions/
-# torch==1.6.0+cu101
-# torchvision==0.7.0+cu101
-# torchaudio==0.6.0
+# PyTorch
+# https://pytorch.org/get-started/previous-versions/
 torch==1.7.1+cu101
 torchvision==0.8.2+cu101
 torchaudio===0.7.2
-
 # Model summary in PyTorch similar to `model.summary()` in Keras
 torchsummary==1.5.1
 
-# ProgressBar
-tqdm
 
 # Flexible and powerful tensor operations for readable and reliable code. Supports numpy, pytorch, tensorflow, and etc.
 einops
+# ProgressBar
+tqdm
+# 分词
+jieba
